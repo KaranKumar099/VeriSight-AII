@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: exam-monitor-postgres
+    environment:
+      POSTGRES_USER: exam_monitor
+      POSTGRES_PASSWORD: exam_monitor
+      POSTGRES_DB: exam_monitor
+    ports:
+      - "5432:5432"
+    volumes:
+      - exam-monitor-pg:/var/lib/postgresql/data
+      - ./server/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+
+volumes:
+  exam-monitor-pg:
