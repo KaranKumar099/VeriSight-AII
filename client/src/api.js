@@ -1,8 +1,5 @@
-const devApi = "http://localhost:4000";
-
-export const API_BASE = import.meta.env.VITE_API_URL ||
-  (window.location.port === "5174" ? devApi : window.location.origin);
-
+export const API_BASE = "https://verisight-aii.onrender.com";
+  
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, {
     headers: {
