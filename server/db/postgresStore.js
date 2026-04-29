@@ -23,28 +23,40 @@ export class PostgresStore {
 
   async upsertUser(user) {
     const result = await this.pool.query(
-      `INSERT INTO users (id, name, role)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, role = EXCLUDED.role
-       RETURNING id, name, role, created_at AS "createdAt"`,
-      [user.id, user.name, user.role || "student"]
+      `INSERT INTO users (id, name, role, email, password_hash)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (id) DO UPDATE
+         SET name = EXCLUDED.name,
+             role = EXCLUDED.role,
+             email = COALESCE(EXCLUDED.email, users.email),
+             password_hash = COALESCE(EXCLUDED.password_hash, users.password_hash)
+       RETURNING id, name, role, email, password_hash AS "passwordHash", created_at AS "createdAt"`,
+      [user.id, user.name, user.role || "student", user.email || null, user.passwordHash || null]
     );
     return result.rows[0];
   }
 
   async listUsers() {
     const result = await this.pool.query(
-      `SELECT id, name, role, created_at AS "createdAt"
-       FROM users
-       ORDER BY id`
+      `SELECT id, name, role, email, created_at AS "createdAt" FROM users ORDER BY id`
     );
     return result.rows;
   }
 
   async getUser(userId) {
     const result = await this.pool.query(
-      `SELECT id, name, role, created_at AS "createdAt" FROM users WHERE id = $1`,
+      `SELECT id, name, role, email, password_hash AS "passwordHash", created_at AS "createdAt"
+       FROM users WHERE id = $1`,
       [userId]
+    );
+    return result.rows[0] || null;
+  }
+
+  async getUserByEmail(email) {
+    const result = await this.pool.query(
+      `SELECT id, name, role, email, password_hash AS "passwordHash", created_at AS "createdAt"
+       FROM users WHERE LOWER(email) = LOWER($1)`,
+      [email]
     );
     return result.rows[0] || null;
   }

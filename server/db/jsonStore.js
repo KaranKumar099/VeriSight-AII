@@ -56,6 +56,10 @@ export class JsonStore {
     return this.data.users.find((user) => user.id === userId) || null;
   }
 
+  async getUserByEmail(email) {
+    return this.data.users.find((user) => user.email && user.email.toLowerCase() === email.toLowerCase()) || null;
+  }
+
   async createSession(session) {
     const active = this.data.sessions.find(
       (item) => item.userId === session.userId && item.status === "active"

@@ -1,11 +1,18 @@
-export const API_BASE = "https://verisight-aii.onrender.com";
+export const API_BASE = "http://localhost:5000";
   
 async function request(path, options = {}) {
+  const token = localStorage.getItem("vs_token");
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {})
+  };
+  
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {})
-    },
+    headers,
     ...options
   });
 

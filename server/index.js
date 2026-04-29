@@ -9,6 +9,7 @@ import { createStore } from "./db/store.js";
 import { AnalyticsService } from "./services/analyticsService.js";
 import { seedDemoData } from "./services/seed.js";
 import { Simulator } from "./services/simulator.js";
+import { authRouter } from "./routes/auth.js";
 import { analyticsRouter } from "./routes/analytics.js";
 import { eventsRouter } from "./routes/events.js";
 import { sessionsRouter } from "./routes/sessions.js";
@@ -21,7 +22,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [CLIENT_URL, "https://verisight-aii-1.onrender.com", "https://verisight-aii.onrender.com"],
+    origin: [CLIENT_URL, "https://verisight-aii-1.onrender.com", "https://verisight-aii.onrender.com", "http://localhost:5174"],
     methods: ["GET", "POST"]
   }
 });
@@ -51,6 +52,7 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
+app.use("/api/auth", authRouter({ store }));
 app.use("/api/sessions", sessionsRouter({ store, analyticsService }));
 app.use("/api/events", eventsRouter({ store, analyticsService }));
 app.use("/api/analytics", analyticsRouter({ analyticsService }));

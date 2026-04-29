@@ -2,8 +2,17 @@ CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   role TEXT NOT NULL DEFAULT 'student',
+  email TEXT UNIQUE,
+  password_hash TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Add columns if upgrading existing DB
+DO $$ BEGIN
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT UNIQUE;
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
 
 CREATE TABLE IF NOT EXISTS exam_sessions (
   id TEXT PRIMARY KEY,

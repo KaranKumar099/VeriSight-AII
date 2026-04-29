@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { logEvent, startSession } from "../api";
 import { questions } from "../data/questions";
 import { MediaProctor } from "./MediaProctor";
+import { useAuth } from "../context/AuthContext";
 
 function elapsedSeconds(startedAt) {
   return Math.max(0, Math.round((Date.now() - startedAt) / 1000));
@@ -59,7 +60,8 @@ function WarningOverlay({ warning, warningCount, onDismiss, onReturnFullscreen }
 }
 
 export function StudentExam({ videoRef }) {
-  const [identity, setIdentity] = useState({ userId: "live-student", name: "Live Student" });
+  const { user } = useAuth();
+  const [identity, setIdentity] = useState({ userId: user?.id || "live-student", name: user?.name || "Live Student" });
   const [session, setSession] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -385,22 +387,10 @@ useEffect(() => {
           </div>
 
           <form onSubmit={handleStart} className="space-y-4">
-            <label className="block">
-              <span className="text-sm text-slate-300">User ID</span>
-              <input
-                value={identity.userId}
-                onChange={(event) => setIdentity((current) => ({ ...current, userId: event.target.value }))}
-                className="mt-2 h-11 w-full rounded-lg border border-white/10 bg-white/[0.05] px-3 text-white outline-none focus:border-emerald-400/50"
-              />
-            </label>
-            <label className="block">
-              <span className="text-sm text-slate-300">Name</span>
-              <input
-                value={identity.name}
-                onChange={(event) => setIdentity((current) => ({ ...current, name: event.target.value }))}
-                className="mt-2 h-11 w-full rounded-lg border border-white/10 bg-white/[0.05] px-3 text-white outline-none focus:border-emerald-400/50"
-              />
-            </label>
+            <div className="rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2">
+              <span className="block text-xs text-slate-400">Taking exam as</span>
+              <span className="font-medium text-white">{identity.name} <span className="text-slate-400 text-sm">({identity.userId})</span></span>
+            </div>
             {error && <p className="rounded-lg border border-red-400/20 bg-red-400/10 px-3 py-2 text-sm text-red-100">{error}</p>}
             <button
               type="submit"
